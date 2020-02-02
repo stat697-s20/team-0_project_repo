@@ -363,10 +363,10 @@ proc sql;
         select
             *
         from
-	    sat15_raw
-	where
-	    /* remove rows for District Offices */
-	    substr(CDS,8,7) ne "0000000"
+       sat15_raw
+    where
+       /* remove rows for District Offices */
+       substr(CDS,8,7) ne "0000000"
     ;
 quit;
 
