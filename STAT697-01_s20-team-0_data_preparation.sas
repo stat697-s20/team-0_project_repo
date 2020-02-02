@@ -320,6 +320,57 @@ proc sql;
 quit;
 
 
+* check sat15_raw for bad unique id values, where the column CDS is intended
+to be a primary key;
+proc sql;
+    /* check for unique id values that are repeated, missing, or correspond to
+       non-schools; after executing this query, we see that
+       sat15_raw_bad_unique_ids only has non-school values of CDS that need to
+       be removed */
+    create table sat15_raw_bad_unique_ids as
+        select
+            A.*
+        from
+            sat15_raw as A
+            left join
+            (
+                select
+                     CDS
+                    ,count(*) as row_count_for_unique_id_value
+                from
+                    sat15_raw
+                group by
+                    CDS
+            ) as B
+            on A.CDS=B.CDS
+        having
+            /* capture rows corresponding to repeated primary key values */
+            row_count_for_unique_id_value > 1
+            or
+            /* capture rows corresponding to missing primary key values */
+            missing(CDS)
+            or
+            /* capture rows corresponding to non-school primary key values */
+            substr(CDS,8,7) in ("0000000","0000001")
+    ;
+    /* remove rows with primary keys that do not correspond to schools; after
+       executing this query, the new dataset gradaf15 will have no
+       duplicate/repeated unique id values, and all unique id values will
+       correspond to our experimenal units of interest, which are California
+       Public K-12 schools; this means the column CDS in sat15 is guaranteed
+       to form a primary key */
+    create table sat15 as
+        select
+            *
+        from
+	    sat15_raw
+	where
+	    /* remove rows for District Offices */
+	    substr(CDS,8,7) ne "0000000"
+    ;
+quit;
+
+
 /* print the names of all datasets/tables created above by querying the
 "dictionary tables" the SAS kernel maintains for the default "Work" library */
 /* Note to learners: The example below illustrates how much work SAS does behind
