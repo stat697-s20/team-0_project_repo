@@ -19,6 +19,9 @@ upon increasing child-poverty levels.
 
 Note: This compares the column "Percent (%) Eligible Free (K-12)" from frpm1415
 to the column of the same name from frpm1516.
+
+Limitations: Values of "Percent (%) Eligible Free (K-12)" equal to zero should
+be excluded from this analysis, since they are potentially missing data values
 */
 
 
@@ -36,6 +39,10 @@ schools most in need of college-preparation outreach.
 
 Note: This compares the column "Percent (%) Eligible Free (K-12)" from frpm1415
 to the column PCTGE1500 from sat15.
+
+Limitations: Values of "Percent (%) Eligible Free (K-12)" equal to zero should
+be excluded from this analysis, since they are potentially missing data values,
+and missing values of PCTGE1500 should also be excluded
 */
 
 
@@ -54,4 +61,7 @@ impact.
 
 Note: This compares the column NUMTSTTAKR from sat15 to the column TOTAL from
 gradaf15.
+
+Limitations: Values of NUMTSTTAKR and TOTAL equal to zero should be excluded
+from this analysis, since they are potentially missing data values
 */
