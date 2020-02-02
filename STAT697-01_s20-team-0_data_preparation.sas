@@ -213,6 +213,53 @@ proc sql;
 quit;
 
 
+* check frpm1516_raw for bad unique id values, where the columns County_Code,
+District_Code, and School_Code form a composite key;
+proc sql;
+    /* check for duplicate unique id values; after executing this query, we
+       see that frpm1516_raw_dups contains now rows, so no mitigation is
+       needed to ensure uniqueness */
+    create table frpm1516_raw_dups as
+        select
+             County_Code
+            ,District_Code
+            ,School_Code
+            ,count(*) as row_count_for_unique_id_value
+        from
+            frpm1516_raw
+        group by
+             County_Code
+            ,District_Code
+            ,School_Code
+        having
+            row_count_for_unique_id_value > 1
+    ;
+    /* remove rows with missing unique id components, or with unique ids that
+       do not correspond to schools; after executing this query, the new
+       dataset frpm1516 will have no duplicate/repeated unique id values,
+       and all unique id values will correspond to our experimenal units of
+       interest, which are California Public K-12 schools; this means the 
+       columns County_Code, District_Code, and School_Code in frpm1516 are 
+       guaranteed to form a composite key */
+    create table frpm1516 as
+        select
+            *
+        from
+            frpm1516_raw
+        where
+            /* remove rows with missing unique id value components */
+            not(missing(County_Code))
+            and
+            not(missing(District_Code))
+            and
+            not(missing(School_Code))
+            and
+            /* remove rows for District Offices and non-public schools */
+            School_Code not in ("0000000","0000001")
+    ;
+quit;
+
+
 /* print the names of all datasets/tables created above by querying the
 "dictionary tables" the SAS kernel maintains for the default "Work" library */
 /* Note to learners: The example below illustrates how much work SAS does behind
