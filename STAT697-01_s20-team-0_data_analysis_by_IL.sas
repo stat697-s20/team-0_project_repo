@@ -26,7 +26,7 @@ be excluded from this analysis, since they are potentially missing data values
 
 
 *******************************************************************************;
-* Research Question Analysis Starting Point;
+* Research Question 2 Analysis Starting Point;
 *******************************************************************************;
 /*
 Question 2 of 3: Can "Percent (%) Eligible FRPM (K-12)" be used to predict the
@@ -47,7 +47,7 @@ and missing values of PCTGE1500 should also be excluded
 
 
 *******************************************************************************;
-* Research Question Analysis Starting Point;
+* Research Question 3 Analysis Starting Point;
 *******************************************************************************;
 /*
 Question 3 of 3: What are the top ten schools were the number of high school graduates
