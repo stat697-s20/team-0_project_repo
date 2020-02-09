@@ -515,6 +515,22 @@ data cde_analytic_file_raw_bad_ids;
 run;
 
 
+/* remove duplicates from cde_analytic_file_raw with respect to CDS_Code;
+after inspecting the rows in cde_analytic_file_raw_bad_ids, we saw that either
+of the rows in duplicate-row pairs can be removed without losing values for
+analysis, so we use proc sort to indiscriminately remove duplicates, after
+which column CDS_Code is guaranteed to form a primary key */
+proc sort
+        nodupkey
+        data=cde_analytic_file_raw
+        out=cde_analytic_file
+    ;
+    by
+        CDS_Code
+    ;
+run;
+
+
 /* print the names of all datasets/tables created above by querying the
 "dictionary tables" the SAS kernel maintains for the default "Work" library */
 proc sql;
