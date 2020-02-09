@@ -363,6 +363,114 @@ proc sql;
 quit;
 
 
+/* build analytic dataset from raw datasets imported above, including only the
+columns and minimal data-cleaning/transformation needed to address each
+research questions/objectives in data-analysis files */
+proc sql;
+    create table cde_analytic_file_raw as
+        select
+             coalesce(A.CDS_Code,B.CDS_Code,C.CDS_Code,D.CDS_Code)
+             AS CDS_Code
+            ,coalesce(A.School,B.School,C.School,D.School)
+             AS School
+            ,coalesce(A.District,B.District,C.District,D.District)
+             AS District
+            ,A.Percent_Eligible_FRPM_K12_1415 format percent12.2
+             label "FRPM Eligibility Rate in AY2014-15"
+            ,B.Percent_Eligible_FRPM_K12_1516 format percent12.2
+             label "FRPM Eligibility Rate in AY2015-16"
+            ,B.Percent_Eligible_FRPM_K12_1516
+             - A.Percent_Eligible_FRPM_K12_1415
+             AS FRPM_Percentage_Point_Increase format percent12.2
+             label "FRPM Eligibility Rate Percentage Point Increase"
+            ,C.Number_of_Course_Completers format comma12.
+             label "Number of 'a-g' Course Completers in AY2014-15"
+            ,D.Number_of_SAT_Takers format comma12.
+             label "Number of SAT Takers in AY2014-15"
+            ,D.Number_of_SAT_Takers - C.Number_of_Course_Completers
+             AS Course_Completers_Gap_Count format comma12.
+             label "Gap Count between SAT Takers and 'a-g' Completers"
+            ,calculated Course_Completers_Gap_Count
+             / C.Number_of_Course_Completers format percent12.2
+             label "Gap Percent between SAT Takers and 'a-g' Completers"
+             AS Course_Completers_Gap_Percent
+            ,D.Percent_with_SAT_above_1500 format percent12.2
+             label "Percentage of SAT Takers Scoring 1500+ in AY2014-15"
+        from
+            (
+                select
+                     cats(County_Code,District_Code,School_Code)
+                     AS CDS_Code
+                     length 14
+                    ,School_Name
+                     AS
+                     School
+                    ,District_Name
+                     AS
+                     District
+                    ,Percent_Eligible_FRPM_K12
+                     AS Percent_Eligible_FRPM_K12_1415
+                from
+                    frpm1415
+            ) as A
+            full join
+            (
+                select
+                     cats(County_Code,District_Code,School_Code)
+                     AS CDS_Code
+                     length 14
+                    ,School_Name
+                     AS
+                     School
+                    ,District_Name
+                     AS
+                     District
+                    ,Percent_Eligible_FRPM_K12
+                     AS Percent_Eligible_FRPM_K12_1516
+                from
+                    frpm1516
+            ) as B
+            on A.CDS_Code = B.CDS_Code
+            full join
+            (
+                select
+                     CDS_CODE
+                     AS CDS_Code
+                    ,SCHOOL
+                     AS School
+                    ,DISTRICT
+                     AS
+                     District
+                    ,input(TOTAL,best12.)
+                     AS Number_of_Course_Completers
+                from
+                    gradaf15
+            ) as C
+            on A.CDS_Code = C.CDS_Code
+            full join
+            (
+                select
+                     cds
+                     AS CDS_Code
+                    ,sname
+                     AS School
+                    ,dname
+                     AS
+                     District
+                    ,input(NUMTSTTAKR,best12.)
+                     AS Number_of_SAT_Takers
+                    ,input(PCTGE1500, best12.)/100
+                     AS Percent_with_SAT_above_1500
+                from
+                    sat15
+            ) as D
+            on A.CDS_Code = D.CDS_Code
+        order by
+            CDS_Code
+    ;
+quit;
+
+
 /* print the names of all datasets/tables created above by querying the
 "dictionary tables" the SAS kernel maintains for the default "Work" library */
 proc sql;
