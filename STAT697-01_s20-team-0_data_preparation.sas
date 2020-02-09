@@ -165,8 +165,8 @@ https://github.com/stat697/team-0_project_repo/blob/master/data/sat15-edited.xls
 %loadDatasets
 
 
-* check frpm1415_raw for bad unique id values, where the columns County_Code,
-District_Code, and School_Code are intended to form a composite key;
+/* check frpm1415_raw for bad unique id values, where the columns County_Code,
+District_Code, and School_Code are intended to form a composite key */
 proc sql;
     /* check for duplicate unique id values; after executing this query, we
        see that frpm1415_raw_dups only has one row, which just happens to 
@@ -214,8 +214,8 @@ proc sql;
 quit;
 
 
-* check frpm1516_raw for bad unique id values, where the columns County_Code,
-District_Code, and School_Code form a composite key;
+/* check frpm1516_raw for bad unique id values, where the columns County_Code,
+District_Code, and School_Code form a composite key */
 proc sql;
     /* check for duplicate unique id values; after executing this query, we
        see that frpm1516_raw_dups contains now rows, so no mitigation is
@@ -261,8 +261,8 @@ proc sql;
 quit;
 
 
-* check gradaf15_raw for bad unique id values, where the column CDS_CODE is 
-intended to be a primary key;
+/* check gradaf15_raw for bad unique id values, where the column CDS_CODE is 
+intended to be a primary key */
 proc sql;
     /* check for unique id values that are repeated, missing, or correspond to
        non-schools; after executing this query, we see that
@@ -312,8 +312,8 @@ proc sql;
 quit;
 
 
-* check sat15_raw for bad unique id values, where the column CDS is intended
-to be a primary key;
+/* check sat15_raw for bad unique id values, where the column CDS is intended
+to be a primary key */
 proc sql;
     /* check for unique id values that are repeated, missing, or correspond to
        non-schools; after executing this query, we see that
