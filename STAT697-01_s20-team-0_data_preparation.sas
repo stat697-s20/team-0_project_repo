@@ -267,15 +267,6 @@ proc sql;
        non-schools; after executing this query, we see that
        gradaf15_raw_bad_unique_ids only has non-school values of CDS_Code that
        need to be removed */
-    /* note to learners: the query below uses an in-line view together with a
-       left join (see Chapter 3 for definitions) to isolate all problematic
-       rows within a single query; it would have been just as valid to use
-       mulitple queries, as above, but it's often convenient to use a single
-       query to create a table with speficic properties; in particular, in the
-       above two examples, we blindly eliminated rows having specific
-       properties when creating frpm1415 and frpm1516, whereas the query below
-       allows us to build a fit-for-purpose mitigation step with no guessing
-       or unnecessary effort */
     create table gradaf15_raw_bad_unique_ids as
         select
             A.*
@@ -371,105 +362,8 @@ proc sql;
 quit;
 
 
-* inspect columns of interest in cleaned versions of datasets;
-
-title "Inspect Percent_Eligible_Free_K12 in frpm1415";
-proc sql;
-    select
-         min(Percent_Eligible_Free_K12) as min
-        ,max(Percent_Eligible_Free_K12) as max
-        ,mean(Percent_Eligible_Free_K12) as max
-        ,median(Percent_Eligible_Free_K12) as max
-        ,nmiss(Percent_Eligible_Free_K12) as missing
-    from
-        frpm1415
-    ;
-quit;
-title;
-
-title "Inspect Percent_Eligible_Free_K12 in frpm1516";
-proc sql;
-    select
-         min(Percent_Eligible_Free_K12) as min
-        ,max(Percent_Eligible_Free_K12) as max
-        ,mean(Percent_Eligible_Free_K12) as max
-        ,median(Percent_Eligible_Free_K12) as max
-        ,nmiss(Percent_Eligible_Free_K12) as missing
-    from
-        frpm1516
-    ;
-quit;
-title;
-
-title "Inspect PCTGE1500, after converting to numeric values, in sat15";
-proc sql;
-    select
-         min(input(PCTGE1500,best12.)) as min
-        ,max(input(PCTGE1500,best12.)) as max
-        ,mean(input(PCTGE1500,best12.)) as max
-        ,median(input(PCTGE1500,best12.)) as max
-        ,nmiss(input(PCTGE1500,best12.)) as missing
-    from
-        sat15
-    ;
-quit;
-title;
-
-title "Inspect NUMTSTTAKR, after converting to numeric values, in sat15";
-proc sql;
-    select
-         input(NUMTSTTAKR,best12.) as Number_of_testers
-        ,count(*) as Number_of_occurrences_in_table
-    from
-        sat15
-    group by
-        calculated Number_of_testers
-    having
-        Number_of_testers = 0
-        or
-        missing(Number_of_testers)
-    ;
-quit;
-title;
-
-title "Inspect TOTAL, after converting to numeric values, in gradaf15";
-proc sql;
-    select
-        input(TOTAL,best12.) as Number_of_course_completers
-        ,count(*) as Number_of_occurrences_in_table
-    from
-        gradaf15
-    group by
-        calculated Number_of_course_completers
-    having
-        Number_of_course_completers = 0
-        or
-        missing(Number_of_course_completers)
-    ;
-quit;
-title;
-
-
 /* print the names of all datasets/tables created above by querying the
 "dictionary tables" the SAS kernel maintains for the default "Work" library */
-/* Note to learners: The example below illustrates how much work SAS does behind
-the scenes when a new dataset is created. By default, SAS datasets are stored on
-disk as physical files, which you could view by locating in folders called
-"libraries," with the default "Work" library located in a temporary location
-typically not accessible to the end user. In addition, SAS dataset files can be
-optimized in numerous ways, including encryption, compression, and indexing.
-This reflects SAS having been created in the 1960s, when computer resources were
-extremely limited, and so it made sense to store even small datasets on disk and
-load them into memory one record/row at a time, as needed.
-
-By contract, most modern languages, like R and Python, store datasets in memory
-by default. This has several trade-offs: Since DataFrames in R and Python are in
-memory, any of their elements can be accessed simultaneously, making data
-transformations fast and flexible, but DataFrames cannot be larger than available
-system memory. On the other hand, SAS datasets can be arbitrarily large, but
-large datasets often take longer to process since they must be streamed to
-memory from disk and then operated on one record at a time.
-*/
 proc sql;
     select *
     from dictionary.tables
