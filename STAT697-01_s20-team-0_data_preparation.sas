@@ -135,15 +135,16 @@ https://github.com/stat697/team-0_project_repo/blob/master/data/sat15-edited.xls
                 "%sysfunc(getoption(work))/tempfile.&filetype."
             ;
             proc http
-                method="get"
-                url="&url."
-                out=tempfile
+                    method="get"
+                    url="&url."
+                    out=tempfile
                 ;
             run;
             proc import
-                file=tempfile
-                out=&dsn.
-                dbms=&filetype.;
+                    file=tempfile
+                    out=&dsn.
+                    dbms=&filetype.
+                ;
             run;
             filename tempfile clear;
         %end;
@@ -354,10 +355,10 @@ proc sql;
         select
             *
         from
-       sat15_raw
-    where
-       /* remove rows for District Offices */
-       substr(CDS,8,7) ne "0000000"
+            sat15_raw
+        where
+           /* remove rows for District Offices */
+           substr(CDS,8,7) ne "0000000"
     ;
 quit;
 
@@ -365,8 +366,13 @@ quit;
 /* print the names of all datasets/tables created above by querying the
 "dictionary tables" the SAS kernel maintains for the default "Work" library */
 proc sql;
-    select *
-    from dictionary.tables
-    where libname = 'WORK'
-    order by memname;
+    select
+        *
+    from
+        dictionary.tables
+    where
+        libname = 'WORK'
+    order by
+        memname
+    ;
 quit;
