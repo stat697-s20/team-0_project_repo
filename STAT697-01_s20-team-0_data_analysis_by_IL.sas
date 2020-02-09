@@ -3,7 +3,8 @@
 * (set window width to banner width to calibrate line length to 80 characters *;
 *******************************************************************************;
 
-/* load external file that will generate final analytic file */
+/* load external file generating "analytic file" dataset cde_analytic_file,
+from which all data analyses below begin */
 %include './STAT697-01_s20-team-0_data_preparation.sas';
 
 
