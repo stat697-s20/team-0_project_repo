@@ -165,8 +165,8 @@ https://github.com/stat697/team-0_project_repo/blob/master/data/sat15-edited.xls
 %loadDatasets
 
 
-* check frpm1415_raw for bad unique id values, where the columns County_Code,
-District_Code, and School_Code are intended to form a composite key;
+/* check frpm1415_raw for bad unique id values, where the columns County_Code,
+District_Code, and School_Code are intended to form a composite key */
 proc sql;
     /* check for duplicate unique id values; after executing this query, we
        see that frpm1415_raw_dups only has one row, which just happens to 
@@ -214,8 +214,8 @@ proc sql;
 quit;
 
 
-* check frpm1516_raw for bad unique id values, where the columns County_Code,
-District_Code, and School_Code form a composite key;
+/* check frpm1516_raw for bad unique id values, where the columns County_Code,
+District_Code, and School_Code form a composite key */
 proc sql;
     /* check for duplicate unique id values; after executing this query, we
        see that frpm1516_raw_dups contains now rows, so no mitigation is
@@ -261,8 +261,8 @@ proc sql;
 quit;
 
 
-* check gradaf15_raw for bad unique id values, where the column CDS_CODE is 
-intended to be a primary key;
+/* check gradaf15_raw for bad unique id values, where the column CDS_CODE is 
+intended to be a primary key */
 proc sql;
     /* check for unique id values that are repeated, missing, or correspond to
        non-schools; after executing this query, we see that
@@ -312,8 +312,8 @@ proc sql;
 quit;
 
 
-* check sat15_raw for bad unique id values, where the column CDS is intended
-to be a primary key;
+/* check sat15_raw for bad unique id values, where the column CDS is intended
+to be a primary key */
 proc sql;
     /* check for unique id values that are repeated, missing, or correspond to
        non-schools; after executing this query, we see that
@@ -361,6 +361,174 @@ proc sql;
            substr(CDS,8,7) ne "0000000"
     ;
 quit;
+
+
+/* build analytic dataset from raw datasets imported above, including only the
+columns and minimal data-cleaning/transformation needed to address each
+research questions/objectives in data-analysis files */
+proc sql;
+    create table cde_analytic_file_raw as
+        select
+             coalesce(A.CDS_Code,B.CDS_Code,C.CDS_Code,D.CDS_Code)
+             AS CDS_Code
+            ,coalesce(A.School,B.School,C.School,D.School)
+             AS School
+            ,coalesce(A.District,B.District,C.District,D.District)
+             AS District
+            ,A.Percent_Eligible_FRPM_K12_1415 format percent12.2
+             label "FRPM Eligibility Rate in AY2014-15"
+            ,B.Percent_Eligible_FRPM_K12_1516 format percent12.2
+             label "FRPM Eligibility Rate in AY2015-16"
+            ,B.Percent_Eligible_FRPM_K12_1516
+             - A.Percent_Eligible_FRPM_K12_1415
+             AS FRPM_Percentage_Point_Increase format percent12.2
+             label "FRPM Eligibility Rate Percentage Point Increase"
+            ,C.Number_of_Course_Completers format comma12.
+             label "Number of 'a-g' Course Completers in AY2014-15"
+            ,D.Number_of_SAT_Takers format comma12.
+             label "Number of SAT Takers in AY2014-15"
+            ,D.Number_of_SAT_Takers - C.Number_of_Course_Completers
+             AS Course_Completers_Gap_Count format comma12.
+             label "Gap Count between SAT Takers and 'a-g' Completers"
+            ,calculated Course_Completers_Gap_Count
+             / C.Number_of_Course_Completers format percent12.2
+             label "Gap Percent between SAT Takers and 'a-g' Completers"
+             AS Course_Completers_Gap_Percent
+            ,D.Percent_with_SAT_above_1500 format percent12.2
+             label "Percentage of SAT Takers Scoring 1500+ in AY2014-15"
+        from
+            (
+                select
+                     cats(County_Code,District_Code,School_Code)
+                     AS CDS_Code
+                     length 14
+                    ,School_Name
+                     AS
+                     School
+                    ,District_Name
+                     AS
+                     District
+                    ,Percent_Eligible_FRPM_K12
+                     AS Percent_Eligible_FRPM_K12_1415
+                from
+                    frpm1415
+            ) as A
+            full join
+            (
+                select
+                     cats(County_Code,District_Code,School_Code)
+                     AS CDS_Code
+                     length 14
+                    ,School_Name
+                     AS
+                     School
+                    ,District_Name
+                     AS
+                     District
+                    ,Percent_Eligible_FRPM_K12
+                     AS Percent_Eligible_FRPM_K12_1516
+                from
+                    frpm1516
+            ) as B
+            on A.CDS_Code = B.CDS_Code
+            full join
+            (
+                select
+                     CDS_CODE
+                     AS CDS_Code
+                    ,SCHOOL
+                     AS School
+                    ,DISTRICT
+                     AS
+                     District
+                    ,input(TOTAL,best12.)
+                     AS Number_of_Course_Completers
+                from
+                    gradaf15
+            ) as C
+            on A.CDS_Code = C.CDS_Code
+            full join
+            (
+                select
+                     cds
+                     AS CDS_Code
+                    ,sname
+                     AS School
+                    ,dname
+                     AS
+                     District
+                    ,input(NUMTSTTAKR,best12.)
+                     AS Number_of_SAT_Takers
+                    ,input(PCTGE1500, best12.)/100
+                     AS Percent_with_SAT_above_1500
+                from
+                    sat15
+            ) as D
+            on A.CDS_Code = D.CDS_Code
+        order by
+            CDS_Code
+    ;
+quit;
+
+
+/* check cde_analytic_file_raw for rows whose unique id values are repeated,
+missing, or correspond to non-schools, where the column CDS_Code is intended
+to be a primary key; after executing this data step, we see that the full joins
+used above introduced duplicates in cde_analytic_file_raw, which need to be
+mitigated before proceeding */
+/* notes to learners:
+    (1) even though the data-integrity check and mitigation steps below could
+        be performed with SQL queries, as was used earlier in this file, it's
+        often faster and less code to use data steps and proc sort steps to
+        check for and remove duplicates; in particular, by-group processing
+        is much more convenient when checking for duplicates than the SQL row
+        aggregation and in-line view tricks used above; in practice, though,
+        you should use whatever methodology you're most comfortable with
+    (2) when determining what type of join to use to combine tables, it's
+        common to designate one of the table as the "master" table, and to use
+        left (outer) joins to add columns from the other "auxiliary" tables
+    (3) however, if this isn't the case, an inner joins typically makes sense
+        whenever we're only interested in rows whose unique id values match up
+        in the tables to be joined
+    (4) similarly, full (outer) joins tend to make sense whenever we want all
+        possible combinations of all rows with respect to unique id values to
+        be included in the output dataset, such as in this example, where not
+        every dataset will necessarily have every possible of CDS_Code in it
+    (5) unfortunately, though, full joins of more than two tables can also
+        introduce duplicates with respect to unique id values, even if unique
+        id values are not duplicated in the original input datasets 
+*/
+data cde_analytic_file_raw_bad_ids;
+    set cde_analytic_file_raw;
+    by CDS_Code;
+
+    if
+        first.CDS_Code*last.CDS_Code = 0
+        or
+        missing(CDS_Code)
+        or
+        substr(CDS_Code,8,7) in ("0000000","0000001")
+    then
+        do;
+            output;
+        end;
+run;
+
+
+/* remove duplicates from cde_analytic_file_raw with respect to CDS_Code;
+after inspecting the rows in cde_analytic_file_raw_bad_ids, we saw that either
+of the rows in duplicate-row pairs can be removed without losing values for
+analysis, so we use proc sort to indiscriminately remove duplicates, after
+which column CDS_Code is guaranteed to form a primary key */
+proc sort
+        nodupkey
+        data=cde_analytic_file_raw
+        out=cde_analytic_file
+    ;
+    by
+        CDS_Code
+    ;
+run;
 
 
 /* print the names of all datasets/tables created above by querying the
