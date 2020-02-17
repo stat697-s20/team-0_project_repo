@@ -476,28 +476,6 @@ missing, or correspond to non-schools, where the column CDS_Code is intended
 to be a primary key; after executing this data step, we see that the full joins
 used above introduced duplicates in cde_analytic_file_raw, which need to be
 mitigated before proceeding */
-/* notes to learners:
-    (1) even though the data-integrity check and mitigation steps below could
-        be performed with SQL queries, as was used earlier in this file, it's
-        often faster and less code to use data steps and proc sort steps to
-        check for and remove duplicates; in particular, by-group processing
-        is much more convenient when checking for duplicates than the SQL row
-        aggregation and in-line view tricks used above; in practice, though,
-        you should use whatever methodology you're most comfortable with
-    (2) when determining what type of join to use to combine tables, it's
-        common to designate one of the table as the "master" table, and to use
-        left (outer) joins to add columns from the other "auxiliary" tables
-    (3) however, if this isn't the case, an inner joins typically makes sense
-        whenever we're only interested in rows whose unique id values match up
-        in the tables to be joined
-    (4) similarly, full (outer) joins tend to make sense whenever we want all
-        possible combinations of all rows with respect to unique id values to
-        be included in the output dataset, such as in this example, where not
-        every dataset will necessarily have every possible of CDS_Code in it
-    (5) unfortunately, though, full joins of more than two tables can also
-        introduce duplicates with respect to unique id values, even if unique
-        id values are not duplicated in the original input datasets 
-*/
 data cde_analytic_file_raw_bad_ids;
     set cde_analytic_file_raw;
     by CDS_Code;
@@ -529,18 +507,3 @@ proc sort
         CDS_Code
     ;
 run;
-
-
-/* print the names of all datasets/tables created above by querying the
-"dictionary tables" the SAS kernel maintains for the default "Work" library */
-proc sql;
-    select
-        *
-    from
-        dictionary.tables
-    where
-        libname = 'WORK'
-    order by
-        memname
-    ;
-quit;
