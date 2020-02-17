@@ -82,6 +82,14 @@ proc corr
 run;
 
 
+proc sgplot data=cde_analytic_file;
+    scatter
+        x=Percent_Eligible_FRPM_K12_1415
+        y=Percent_with_SAT_above_1500
+    ;
+run;
+
+
 *******************************************************************************;
 * Research Question 3 Analysis Starting Point;
 *******************************************************************************;
