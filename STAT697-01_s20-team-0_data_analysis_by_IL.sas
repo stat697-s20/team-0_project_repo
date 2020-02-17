@@ -133,16 +133,28 @@ run;
 *******************************************************************************;
 * Research Question 3 Analysis Starting Point;
 *******************************************************************************;
+
+title1 justify=left
+'Research Question 3 of 3: What are the top ten California public K-12 schools were the number of high school graduates taking the SAT exceeds the number of high school graduates completing UC/CSU entrance requirements?'
+;
+
+title2 justify=left
+"Rationale: This would help identify schools with significant gaps in preparation specific for California's two public university systems, suggesting where focused outreach on UC/CSU college-preparation might have the greatest impact."
+;
+
+footnote1 justify=left
+"All ten schools listed appear to have extremely large numbers of 12th-graders graduating who have completed the SAT but not the coursework needed to apply for the UC/CSU system, with differences ranging from 147 to 282."
+;
+
+footnote2 justify=left
+"These are significant gaps in college-preparation, with some of the percentages suggesting that schools have a college-going culture not aligned with UC/CSU-going. Given the magnitude of these numbers, further investigation should be performed to ensure no data errors are involved."
+;
+
+footnote3 justify=left
+"However, assuming there are no data issues underlying this analysis, possible explanations for such large numbers of 12th-graders completing only the SAT include lack of access to UC/CSU-preparatory coursework, as well as lack of proper counseling for students early enough in high school to complete all necessary coursework. This again confirms that outreach would be most effective at high-needs schools."
+;
+
 /*
-Question 3 of 3: What are the top ten schools were the number of high school graduates
-taking the SAT exceeds the number of high school graduates completing UC/CSU
-entrance requirements?
-
-Rationale: This would help identify schools with significant gaps in
-preparation specific for California's two public university systems, suggesting
-where focused outreach on UC/CSU college-preparation might have the greatest
-impact.
-
 Note: This compares the column NUMTSTTAKR from sat15 to the column TOTAL from
 gradaf15.
 
