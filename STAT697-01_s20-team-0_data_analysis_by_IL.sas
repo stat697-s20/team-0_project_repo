@@ -66,32 +66,13 @@ and missing values of PCTGE1500 should also be excluded
 */
 
 
-proc rank
-        groups=10
+proc corr
         data=cde_analytic_file
-        out=cde_analytic_file_ranked
+        nosimple
     ;
-    var Percent_Eligible_FRPM_K12_1415;
-    ranks Percent_Eligible_FRPM_K12_rank;
-run;
-proc rank
-        groups=10
-        data=cde_analytic_file_ranked
-        out=cde_analytic_file_ranked
-    ;
-    var Percent_with_SAT_above_1500;
-    ranks Percent_with_SAT_above_1500_rank;
-run;
-
-proc freq data=cde_analytic_file_ranked;
-    table
-          Percent_Eligible_FRPM_K12_rank
-        * Percent_with_SAT_above_1500_rank
-        / norow nocol nopercent
-    ;
-    label
-        Percent_Eligible_FRPM_K12_rank=" "
-        Percent_with_SAT_above_1500_rank=" "
+    var
+        Percent_Eligible_FRPM_K12_1415
+        Percent_with_SAT_above_1500
     ;
     where
         not(missing(Percent_Eligible_FRPM_K12_1415))
