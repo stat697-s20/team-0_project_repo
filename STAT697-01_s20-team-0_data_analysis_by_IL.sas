@@ -41,23 +41,33 @@ be excluded from this analysis, since they are potentially missing data values
 */
 
 
-proc sql outobs=5;
-    select
-         School
-        ,District
-        ,Percent_Eligible_FRPM_K12_1415
-        ,Percent_Eligible_FRPM_K12_1516
-        ,FRPM_Percentage_Point_Increase
-    from
-        cde_analytic_file
+/* sort by increase in FRPM Eligibility Rate, removing all schools with missing
+or invalid values for FRPM Eligibility Rates in AY2014 and AY2015 */
+proc sort
+        data=cde_analytic_file
+        out=cde_analytic_file_by_FRPM_Incr
+    ;
+    by
+        descending FRPM_Percentage_Point_Increase
+        School
+    ;
     where
         Percent_Eligible_FRPM_K12_1415 > 0
         and
         Percent_Eligible_FRPM_K12_1516 > 0
-    order by
-        FRPM_Percentage_Point_Increase desc
     ;
-quit;
+run;
+
+/* output first five rows of resulting sorted data, addressing research question */
+proc report data=cde_analytic_file_by_FRPM_Incr(obs=5);
+    columns
+        School
+        District
+        Percent_Eligible_FRPM_K12_1415
+        Percent_Eligible_FRPM_K12_1516
+        FRPM_Percentage_Point_Increase
+    ;
+run;
 
 
 *******************************************************************************;
@@ -163,21 +173,31 @@ from this analysis, since they are potentially missing data values
 */
 
 
-proc sql outobs=10;
-    select
-         School
-        ,District
-        ,Number_of_SAT_Takers /* NUMTSTTAKR from sat15 */
-        ,Number_of_Course_Completers /* TOTAL from gradaf15 */
-        ,Course_Completers_Gap_Count
-        ,Course_Completers_Gap_Percent format percent12.1
-    from
-        cde_analytic_file
+/* sort by difference between number of SAT takers and number of course
+completers, removing all schools with missing or invalid values for each */
+proc sort
+        data=cde_analytic_file
+        out=cde_analytic_file_by_Gap_Count
+    ;
+    by
+        descending Course_Completers_Gap_Count
+        School
+    ;
     where
         Number_of_SAT_Takers > 0
         and
         Number_of_Course_Completers > 0
-    order by
-        Course_Completers_Gap_Count desc
     ;
-quit;
+run;
+
+/* output first ten rows of resulting sorted data, addressing research question */
+proc report data=cde_analytic_file_by_Gap_Count(obs=10);
+    columns
+        School
+        District
+        Number_of_SAT_Takers /* NUMTSTTAKR from sat15 */
+        Number_of_Course_Completers /* TOTAL from gradaf15 */
+        Course_Completers_Gap_Percent
+        Course_Completers_Gap_Count
+    ;
+run;
