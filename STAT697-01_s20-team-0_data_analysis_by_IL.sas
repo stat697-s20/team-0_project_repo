@@ -41,23 +41,33 @@ be excluded from this analysis, since they are potentially missing data values
 */
 
 
-proc sql outobs=5;
-    select
-         School
-        ,District
-        ,Percent_Eligible_FRPM_K12_1415
-        ,Percent_Eligible_FRPM_K12_1516
-        ,FRPM_Percentage_Point_Increase
-    from
-        cde_analytic_file
+/* sort by increase in FRPM Eligibility Rate, removing all schools with missing
+or invalid values for FRPM Eligibility Rates in AY2014 and AY2015 */
+proc sort
+        data=cde_analytic_file
+        out=cde_analytic_file_by_FRPM_Incr
+    ;
+    by
+        descending FRPM_Percentage_Point_Increase
+        School
+    ;
     where
         Percent_Eligible_FRPM_K12_1415 > 0
         and
         Percent_Eligible_FRPM_K12_1516 > 0
-    order by
-        FRPM_Percentage_Point_Increase desc
     ;
-quit;
+run;
+
+/* output first five rows of resulting sorted data, addressing research question */
+proc report data=cde_analytic_file_by_FRPM_Incr(obs=5);
+    columns
+        School
+        District
+        Percent_Eligible_FRPM_K12_1415
+        Percent_Eligible_FRPM_K12_1516
+        FRPM_Percentage_Point_Increase
+    ;
+run;
 
 
 *******************************************************************************;
