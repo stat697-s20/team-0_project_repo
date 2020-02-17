@@ -38,6 +38,14 @@ to the column of the same name from frpm1516.
 
 Limitations: Values of "Percent (%) Eligible Free (K-12)" equal to zero should
 be excluded from this analysis, since they are potentially missing data values
+
+Methodology: Use proc sort to create a temporary sorted table in descending
+order by FRPM_Percentage_Point_Increase, with ties broken by school name. Then
+use proc report to print the first five rows of the sorted dataset.
+
+Followup Steps: More carefully clean values in order to filter out any possible
+illegal values, and better handle missing data, e.g., by using a previous year's
+data or a rolling average of previous years' data as a proxy.
 */
 
 
@@ -93,6 +101,13 @@ to the column PCTGE1500 from sat15.
 Limitations: Values of "Percent (%) Eligible Free (K-12)" equal to zero should
 be excluded from this analysis, since they are potentially missing data values,
 and missing values of PCTGE1500 should also be excluded
+
+Methodology: Use proc corr to perform a correlation analysis, and then use proc
+sgplot to output a scatterplot, illustrating the correlation present
+
+Followup Steps: A possible follow-up to this approach could use a more formal
+inferential technique like linear regression, which could be used to determine
+more than the existence of a linear relationship.
 */
 
 
@@ -182,6 +197,14 @@ gradaf15.
 
 Limitations: Values of NUMTSTTAKR and TOTAL equal to zero should be excluded
 from this analysis, since they are potentially missing data values
+
+Methodology: Use proc sort to create a temporary sorted table in descending
+order by Course_Completers_Gap_Count, with ties broken by school name. Then
+use proc report to print the first ten rows of the sorted dataset.
+
+Followup Steps: More carefully clean values in order to filter out any possible
+illegal values, and better handle missing data, e.g., by using a previous year's
+data or a rolling average of previous years' data as a proxy.
 */
 
 
