@@ -11,13 +11,28 @@ from which all data analyses below begin */
 *******************************************************************************;
 * Research Question 1 Analysis Starting Point;
 *******************************************************************************;
+
+title1 justify=left
+'Question 1 of 3: What are the top five California public K-12 schools experiencing the biggest increase in Free/Reduced-Price Meal Eligibility Rates between AY2014-15 and AY2015-16?'
+;
+
+title2 justify=left
+'Rationale: This should help identify schools to consider for new outreach based upon increasing child-poverty levels.'
+;
+
+footnote1 justify=left
+"Of the five schools with the greatest increases in percent eligible for free/reduced-price meals between AY2014-15 and AY2015-16, the percentage point increase ranges from about 67% to about 86%."
+;
+
+footnote2 justify=left
+"These are significant demographic shifts for a community to experience, so further investigation should be performed to ensure no data errors are involved."
+;
+
+footnote3 justify=left
+"However, assuming there are no data issues underlying this analysis, possible explanations for such large increases include changing CA demographics and recent loosening of the rules under which students qualify for free/reduced-price meals."
+;
+
 /*
-Question 1 of 3: What are the top five schools that experienced the biggest
-increase in "Percent (%) Eligible Free (K-12)" between AY2014-15 and AY2015-16?
-
-Rationale: This should help identify schools to consider for new outreach based
-upon increasing child-poverty levels.
-
 Note: This compares the column "Percent (%) Eligible Free (K-12)" from frpm1415
 to the column of the same name from frpm1516.
 
