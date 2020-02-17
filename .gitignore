@@ -1,5 +1,6 @@
 # Ignore macOS-created metadata files
 .DS_Store
+sas_output/
 
 
 
