@@ -507,18 +507,3 @@ proc sort
         CDS_Code
     ;
 run;
-
-
-/* print the names of all datasets/tables created above by querying the
-"dictionary tables" the SAS kernel maintains for the default "Work" library */
-proc sql;
-    select
-        *
-    from
-        dictionary.tables
-    where
-        libname = 'WORK'
-    order by
-        memname
-    ;
-quit;
